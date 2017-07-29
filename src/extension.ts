@@ -10,9 +10,26 @@ const { keys } = Object;
 export function activate(context: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-  const config = vscode.workspace.getConfiguration('colorAudit');
-  const includes = config.get('includes') || '{**/*.sass,**/*.scss,**/*.css}';
-  const excludes = config.get('excludes');
+  const config = vscode.workspace.getConfiguration('colorAudit') || {};
+  const handleGetIncludes = config => {
+    const includes = config.get('includes');
+    const defaultIncludes = '{**/*.sass,**/*.scss,**/*.css}';
+    if (includes) {
+      const configKeys = keys(includes);
+      return `{${configKeys.join(',')}}`;
+    }
+    return defaultIncludes;
+  };
+  const handleGetExcludes = config => {
+    const excludes = config.get('excludes');
+    if (excludes) {
+      const configKeys = keys(excludes);
+      return `{${keys(config.get('excludes')).join(',')}}`;
+    }
+    return '';
+  };
+  const includes = handleGetIncludes(config);
+  const excludes = handleGetExcludes(config);
   const outputChannel = vscode.window.createOutputChannel('Code Audit');
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
