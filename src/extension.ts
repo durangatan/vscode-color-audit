@@ -53,6 +53,14 @@ export function activate(context: vscode.ExtensionContext) {
           usageByColor[match] = 1;
         }
       });
+      const rgbaMatches = getRgbaMatches(fsPath);
+      rgbaMatches.forEach(match => {
+        if (usageByColor[match]) {
+          usageByColor[match]++;
+        } else {
+          usageByColor[match] = 1;
+        }
+      });
     });
     outputChannel.append(printAudit(usageByColor));
     outputChannel.show();
@@ -106,4 +114,11 @@ function getColorMatches(fsPath: string): Array<string> {
     }
   });
   return [].concat.apply([], matches);
+}
+
+function getRgbaMatches(fsPath: string): Array<string> {
+  const rgbaRegex = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/gi;
+  const fileContents: String = readFileSync(fsPath).toString();
+  const matches = fileContents.match(rgbaRegex);
+  return matches || [];
 }
